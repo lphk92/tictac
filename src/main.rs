@@ -1,6 +1,6 @@
 use std::io;
 
-mod model;
+mod board;
 
 fn prompt(msg: &String) -> String {
     let mut input = String::new();
@@ -10,19 +10,32 @@ fn prompt(msg: &String) -> String {
 }
 
 fn main() {
-    let mut board = model::Board::new(String::from("Test Board"));
+    let mut board = board::Board::new(String::from("Test Board"));
+
+    let mut computer = board::AutoPlayer::new();
 
     // Game loop
     while board.winner().is_none() && !board.is_draw(){
-        println!("\n{}", board);
-        let input = prompt(&format!("Player {}, make your move: ", board.next_move()));
+        if board.next_move() == 'X' {
+            println!("\n{}", board);
+            let input = prompt(&format!("Player {}, make your move: ", board.next_move()));
 
-        let location = input.parse::<i8>().unwrap();
-        match board.make_move(location as usize) {
-            Ok(i) => i,
-            Err(e) => println!("{}", e)
-        };
+            let location = input.parse::<i8>().unwrap();
+            match board.make_move(location as usize) {
+                Ok(i) => i,
+                Err(e) => println!("Player Error: {}", e)
+            };
+        }
+        else {
+            computer.make_move(&mut board);
+            println!("{:?}", computer);
+        }
     }
+
+    computer.finalize(match board.winner() {
+        Some(symbol) => symbol == 'O',
+        None => false
+    });
 
     // Print winner
     println!("\n\nWinner: {}", match board.winner() {
@@ -30,4 +43,5 @@ fn main() {
         None => String::from("Draw")
     });
     println!("{}", board);
+    println!("{:?}", computer);
 }

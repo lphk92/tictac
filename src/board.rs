@@ -57,6 +57,17 @@ impl Board {
         Ok(())
     }
 
+    pub fn openings(&self) -> Vec<usize> {
+        let mut result = Vec::new();
+        for i in 0..9 {
+            if self.board[i] == ' ' {
+                result.push(i as usize);
+            }
+        }
+
+        result
+    }
+
     pub fn is_draw(&self) -> bool {
         self.winner().is_none() && self.move_count == 9
     }
@@ -72,5 +83,47 @@ impl Board {
             }
         }
         None
+    }
+}
+
+#[derive(Debug)]
+pub struct AutoPlayer {
+    weights: [f64; 9],
+    moves: Vec<usize>,
+}
+
+impl AutoPlayer {
+    pub fn new() -> AutoPlayer {
+        AutoPlayer {
+            weights: [0.5; 9],
+            moves: Vec::new(),
+        }
+    }
+
+    pub fn make_move(&mut self, board: &mut Board) {
+        let openings = board.openings();
+
+        let mut max_weight = self.weights[openings[0]];
+        let mut choice = 0;
+        for i in openings {
+            if !self.moves.contains(&i) && self.weights[i] >= max_weight {
+                max_weight = self.weights[i];
+                choice = i;
+            }
+        }
+
+        board.make_move(choice).unwrap();
+        self.moves.push(choice);
+    }
+
+    pub fn finalize(&mut self, won: bool) {
+        for m in &self.moves {
+            let diff = (1.0 - self.weights[*m]) / 2.0;
+            println!("diff for spot {} : {}", m, diff);
+            if won { self.weights[*m] += diff; }
+            else   { self.weights[*m] -= diff; }
+        }
+
+        self.moves.clear();
     }
 }

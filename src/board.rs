@@ -1,3 +1,4 @@
+extern crate rand;
 use std::fmt;
 
 #[derive(Debug)]
@@ -40,6 +41,11 @@ impl Board {
             board: [' '; 9],
             move_count: 0,
         }
+    }
+
+    pub fn clear(&mut self) {
+        self.board = [' '; 9];
+        self.move_count = 0;
     }
 
     pub fn next_move(&self) -> char {
@@ -86,16 +92,27 @@ impl Board {
     }
 }
 
+
+use board::rand::Rng;
+
 #[derive(Debug)]
 pub struct AutoPlayer {
     weights: [f64; 9],
-    moves: Vec<usize>,
+    pub moves: Vec<usize>,
 }
 
 impl AutoPlayer {
     pub fn new() -> AutoPlayer {
         AutoPlayer {
             weights: [0.5; 9],
+            moves: Vec::new(),
+        }
+    }
+
+    pub fn random() -> AutoPlayer {
+        let weights: [f64; 9] = rand::thread_rng().gen();
+        AutoPlayer {
+            weights: weights,
             moves: Vec::new(),
         }
     }
@@ -116,12 +133,16 @@ impl AutoPlayer {
         self.moves.push(choice);
     }
 
-    pub fn finalize(&mut self, won: bool) {
+    pub fn finalize(&mut self, end_state: i8) {
         for m in &self.moves {
-            let diff = (1.0 - self.weights[*m]) / 2.0;
-            println!("diff for spot {} : {}", m, diff);
-            if won { self.weights[*m] += diff; }
-            else   { self.weights[*m] -= diff; }
+            if end_state == 1 {
+                let diff = (1.0 - self.weights[*m]) / 2.0;
+                self.weights[*m] += diff;
+            }
+            else if end_state == -1 {
+                let diff = self.weights[*m] / 2.0;
+                self.weights[*m] -= diff;
+            }
         }
 
         self.moves.clear();

@@ -43,10 +43,12 @@ impl Board {
         }
     }
 
+    /*
     pub fn clear(&mut self) {
         self.board = [' '; 9];
         self.move_count = 0;
     }
+    */
 
     pub fn next_move(&self) -> char {
         let idx = self.move_count % 2;
@@ -111,6 +113,13 @@ impl AutoPlayer {
 
     pub fn random() -> AutoPlayer {
         let weights: [f64; 9] = rand::thread_rng().gen();
+        AutoPlayer {
+            weights: weights,
+            moves: Vec::new(),
+        }
+    }
+
+    pub fn weighted(weights: [f64; 9]) -> AutoPlayer {
         AutoPlayer {
             weights: weights,
             moves: Vec::new(),

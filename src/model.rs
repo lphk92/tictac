@@ -1,8 +1,23 @@
+use std;
+
 #[derive(Debug)]
 pub struct Board {
     name: String,
     board: [char; 9],
     move_count: i8,
+}
+
+impl std::fmt::Display for Board {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "\
+         {} | {} | {}\n\
+        ---------\n\
+         {} | {} | {}\n\
+        ---------\n\
+         {} | {} | {}", self.board[0], self.board[1], self.board[2],
+                        self.board[3], self.board[4], self.board[5],
+                        self.board[6], self.board[7], self.board[8])
+    }
 }
 
 impl Board {

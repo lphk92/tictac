@@ -13,6 +13,8 @@ fn main() {
 
     println!("Next Move: {}", board.next_move());
     board.make_move(0);
-    println!("{:?}", board);
+    println!("{}", board);
     println!("Next Move: {}", board.next_move());
+    board.make_move(4);
+    println!("{}", board);
 }

@@ -31,7 +31,7 @@ fn main() {
     println!("Next Move: {}", board.next_move());
     */
 
-    while board.winner().is_none() {
+    while board.winner().is_none() && !board.is_draw(){
         println!("{}", board);
         let input = prompt(&format!("Player {}, make your move: ", board.next_move()));
 

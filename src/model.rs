@@ -57,6 +57,10 @@ impl Board {
         Ok(())
     }
 
+    pub fn is_draw(&self) -> bool {
+        self.winner().is_none() && self.move_count == 9
+    }
+
     pub fn winner(&self) -> Option<char> {
         for winning_move in Board::WINNING_MOVES.iter() {
             let winner = self.board[winning_move.0];

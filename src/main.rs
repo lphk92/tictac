@@ -1,6 +1,8 @@
 use std::io;
 use std::thread;
 use std::sync::mpsc;
+use std::sync::{Mutex, Arc};
+
 extern crate time;
 
 mod board;
@@ -40,6 +42,7 @@ fn generate_weights(results: &Vec<(i8, Vec<usize>)>) -> [f64; 9] {
     for (state, moves) in results.iter() {
 
     }
+    println!("Size of results: {}", results.len());
     weights
 }
 
@@ -56,11 +59,9 @@ fn train_sync(n_times: i32) -> [f64; 9] {
 }
 
 fn train_channel(n_workers: i32, n_times: i32) -> [f64; 9] {
-    let mut results = Vec::<(i8, Vec<usize>)>::new();
-
     let (tx, rx) = mpsc::channel();
-
     let times_per_worker = n_times / n_workers;
+    let mut results = Vec::<(i8, Vec<usize>)>::new();
 
     for _ in 0..n_workers {
         let curr_tx = mpsc::Sender::clone(&tx);
@@ -86,6 +87,35 @@ fn train_channel(n_workers: i32, n_times: i32) -> [f64; 9] {
     generate_weights(&results)
 }
 
+fn train_mutex(n_workers: i32, n_times: i32) -> [f64; 9] {
+    let times_per_worker = n_times / n_workers;
+    let mutex = Arc::new(Mutex::new(Vec::<(i8, Vec<usize>)>::new()));
+    let mut handles = vec![];
+
+    for _ in 0..n_workers {
+        let mutex = Arc::clone(&mutex);
+        let handle = thread::spawn(move || {
+            let mut computer = board::AutoPlayer::new();
+
+            for _ in 0..times_per_worker {
+                let result = play_one(&mut computer);
+                let mut results = mutex.lock().unwrap();
+
+                results.push(result);
+            }
+        });
+
+        handles.push(handle);
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    let mut results = mutex.lock().unwrap();
+    generate_weights(&results)
+}
+
 fn main() {
     let mut board = board::Board::new(String::from("Test Board"));
 
@@ -108,6 +138,13 @@ fn main() {
         let weights = train_channel(n_workers, n_times);
         let end = time::precise_time_s();
         println!("Training time (channel): {:.4}s", end - start);
+    }
+
+    {
+        let start = time::precise_time_s();
+        let weights = train_mutex(n_workers, n_times);
+        let end = time::precise_time_s();
+        println!("Training time (mutex): {:.4}s", end - start);
     }
 
     /*

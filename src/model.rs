@@ -1,4 +1,4 @@
-use std;
+use std::fmt;
 
 #[derive(Debug)]
 pub struct Board {
@@ -7,8 +7,8 @@ pub struct Board {
     move_count: i8,
 }
 
-impl std::fmt::Display for Board {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "\
          {} | {} | {}\n\
         ---------\n\

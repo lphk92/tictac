@@ -16,20 +16,12 @@ fn prompt(msg: &String) -> String {
     String::from(input.trim())
 }
 
-fn print_vec(v: &Vec<usize>) {
+fn print_vec<T: std::fmt::Display>(v: &Vec<T>) {
     println!("Printing vector of size {}", v.len());
     for item in v {
         println!("   {}", item);
     }
 }
-
-fn print_floats(v: &Vec<f64>) {
-    println!("Printing vector of size {}", v.len());
-    for item in v {
-        println!("   {}", item);
-    }
-}
-
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -50,16 +42,7 @@ fn main() {
     training::train_channel(n_workers, n_times);
     let weights = training::train_mutex(n_workers, n_times);
 
-    println!("{} {} {} {} {} {} {} {} {}",
-             weights[0],
-             weights[1],
-             weights[2],
-             weights[3],
-             weights[4],
-             weights[5],
-             weights[6],
-             weights[7],
-             weights[8]);
+    print_vec::<f64>(&weights.to_vec());
 
     let mut board = board::Board::new(String::from("Test Board"));
     let mut computer = AutoPlayer::weighted(weights);
@@ -78,7 +61,6 @@ fn main() {
         }
         else {
             computer.make_move(&mut board);
-            println!("{:?}", computer);
         }
     }
 

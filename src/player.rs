@@ -11,13 +11,6 @@ pub struct AutoPlayer {
 }
 
 impl AutoPlayer {
-    pub fn new() -> AutoPlayer {
-        AutoPlayer {
-            weights: [0.5; 9],
-            moves: Vec::new(),
-        }
-    }
-
     pub fn random() -> AutoPlayer {
         let weights: [f64; 9] = rand::thread_rng().gen();
         AutoPlayer {
@@ -47,20 +40,5 @@ impl AutoPlayer {
 
         board.make_move(choice).unwrap();
         self.moves.push(choice);
-    }
-
-    pub fn finalize(&mut self, end_state: i8) {
-        for m in &self.moves {
-            if end_state == 1 {
-                let diff = (1.0 - self.weights[*m]) / 2.0;
-                self.weights[*m] += diff;
-            }
-            else if end_state == -1 {
-                let diff = self.weights[*m] / 2.0;
-                self.weights[*m] -= diff;
-            }
-        }
-
-        self.moves.clear();
     }
 }

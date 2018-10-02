@@ -1,13 +1,12 @@
 use std::env;
 use std::io;
-use std::io::Read;
 use std::io::Write;
 
-mod board;
-mod player;
-mod training;
+extern crate tictac;
+use tictac::board;
+use tictac::training;
+use tictac::player::AutoPlayer;
 
-use player::AutoPlayer;
 
 fn prompt(msg: &String) -> String {
     let mut input = String::new();

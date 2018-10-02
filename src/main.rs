@@ -1,3 +1,4 @@
+use std::env;
 use std::io;
 use std::thread;
 use std::sync::mpsc;
@@ -6,6 +7,9 @@ use std::sync::{Mutex, Arc};
 extern crate time;
 
 mod board;
+mod player;
+
+use player::AutoPlayer;
 
 fn prompt(msg: &String) -> String {
     let mut input = String::new();
@@ -16,8 +20,8 @@ fn prompt(msg: &String) -> String {
 
 fn play_one() -> (i8, Vec<usize>) {
     let mut board = board::Board::new(String::from("Test Board"));
-    let mut computer = board::AutoPlayer::random();
-    let mut opponent = board::AutoPlayer::random();
+    let mut computer = AutoPlayer::random();
+    let mut opponent = AutoPlayer::random();
 
     while board.winner().is_none() && !board.is_draw(){
         if board.next_move() == 'X' {
@@ -65,11 +69,12 @@ fn generate_weights(results: &Vec<(i8, Vec<usize>)>) -> [f64; 9] {
         weights[i] = win_count[i] as f64 / n_results as f64;
     }
 
-    println!("Size of results: {}", results.len());
     weights
 }
 
 fn train_sync(n_times: i32) -> [f64; 9] {
+    let start = time::precise_time_s();
+
     let mut results = Vec::<(i8, Vec<usize>)>::new();
 
     for _ in 0..n_times {
@@ -77,10 +82,15 @@ fn train_sync(n_times: i32) -> [f64; 9] {
         results.push(result);
     }
 
+    let end = time::precise_time_s();
+    println!("Training time (channel): {:.4}s", end - start);
+
     generate_weights(&results)
 }
 
 fn train_channel(n_workers: i32, n_times: i32) -> [f64; 9] {
+    let start = time::precise_time_s();
+
     let (tx, rx) = mpsc::channel();
     let times_per_worker = n_times / n_workers;
     let mut results = Vec::<(i8, Vec<usize>)>::new();
@@ -104,10 +114,15 @@ fn train_channel(n_workers: i32, n_times: i32) -> [f64; 9] {
         results.push(result);
     }
 
+    let end = time::precise_time_s();
+    println!("Training time (channel): {:.4}s", end - start);
+
     generate_weights(&results)
 }
 
 fn train_mutex(n_workers: i32, n_times: i32) -> [f64; 9] {
+    let start = time::precise_time_s();
+
     let times_per_worker = n_times / n_workers;
     let mutex = Arc::new(Mutex::new(Vec::<(i8, Vec<usize>)>::new()));
     let mut handles = vec![];
@@ -131,35 +146,27 @@ fn train_mutex(n_workers: i32, n_times: i32) -> [f64; 9] {
     }
 
     let results = mutex.lock().unwrap();
+
+    let end = time::precise_time_s();
+    println!("Training time (mutex): {:.4}s", end - start);
+
     generate_weights(&results)
 }
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+
     // Training Loop
-    let n_workers = 4;
-    let n_times = 10000;
-    println!("Training computer {} times.", n_times);
+    let n_workers = match args[1].parse::<i32>() {
+        Ok(i) => i,
+        Err(e) => 4
+    };
+    let n_times = 100000;
+    println!("Training computer {} times with {} workers.", n_times, n_workers);
 
-    /*
-    let start = time::precise_time_s();
-    let weights = train_sync(n_times);
-    let end = time::precise_time_s();
-    println!("Training time (syncronous): {:.4}s", end - start);
-    */
-
-    /*
-    let start = time::precise_time_s();
-    let weights = train_channel(n_workers, n_times);
-    let end = time::precise_time_s();
-    println!("Training time (channel): {:.4}s", end - start);
-    */
-
-    ///*
-    let start = time::precise_time_s();
+    train_sync(n_times);
+    train_channel(n_workers, n_times);
     let weights = train_mutex(n_workers, n_times);
-    let end = time::precise_time_s();
-    println!("Training time (mutex): {:.4}s", end - start);
-    //*/
 
     println!("{} {} {} {} {} {} {} {} {}",
              weights[0],
@@ -173,7 +180,7 @@ fn main() {
              weights[8]);
 
     let mut board = board::Board::new(String::from("Test Board"));
-    let mut computer = board::AutoPlayer::weighted(weights);
+    let mut computer = AutoPlayer::weighted(weights);
 
     // Game loop
     while board.winner().is_none() && !board.is_draw(){

@@ -1,5 +1,6 @@
 use std::env;
 use std::io;
+use std::io::Write;
 
 extern crate time;
 
@@ -11,16 +12,19 @@ use player::AutoPlayer;
 
 fn prompt(msg: &String) -> String {
     let mut input = String::new();
-    println!("{}", msg);
+    print!("{}", msg);
+    io::stdout().flush().unwrap();
     io::stdin().read_line(&mut input).unwrap();
     String::from(input.trim())
 }
 
 fn print_vec<T: std::fmt::Display>(v: &Vec<T>) {
-    println!("Printing vector of size {}", v.len());
+    print!("[");
     for item in v {
-        println!("   {}", item);
+        print!("{}, ", item);
     }
+    print!("]\n");
+    io::stdout().flush().unwrap();
 }
 
 fn main() {

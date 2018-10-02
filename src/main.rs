@@ -1,8 +1,7 @@
 use std::env;
 use std::io;
+use std::io::Read;
 use std::io::Write;
-
-extern crate time;
 
 mod board;
 mod player;

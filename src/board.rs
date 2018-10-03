@@ -1,6 +1,9 @@
 use std::fmt;
 use std::char;
 
+extern crate ansi_term;
+use self::ansi_term::Colour::Green;
+
 #[derive(Debug)]
 pub struct Board {
     name: String,
@@ -10,15 +13,15 @@ pub struct Board {
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut arr = [' '; 9];
+        let mut arr: Vec<String> = vec![String::new(); 9];
         for i in 0..self.board.len() {
             if self.board[i] != ' ' {
-                arr[i] = self.board[i];
+                arr[i] = char::to_string(&self.board[i]);
             }
             else {
                 arr[i] = match char::from_digit((i + 1) as u32, 10) {
-                    Some(c) => c,
-                    None => ' '
+                    Some(c) => Green.paint(char::to_string(&c)).to_string(),
+                    None => String::new()
                 };
             }
         }

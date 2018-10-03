@@ -1,5 +1,8 @@
 use std::env;
 
+extern crate rand;
+use rand::{thread_rng, Rng};
+
 extern crate tictac;
 use tictac::board;
 use tictac::training;
@@ -22,20 +25,26 @@ fn main() {
     let n_times = 100000;
     println!("Training computer {} times with {} workers.", n_times, n_workers);
 
-    training::train_sync(n_times);
-    training::train_channel(n_workers, n_times);
+    //training::train_sync(n_times);
+    //training::train_channel(n_workers, n_times);
     let weights = training::train_mutex(n_workers, n_times);
 
     print_vec::<f64>(&weights.to_vec());
 
     let mut board = board::Board::new(String::from("Test Board"));
     let mut computer = AutoPlayer::weighted(weights);
-    computer.debug = true;
+    //computer.debug = true;
 
     // Game loop
+    let player_symbol = *(match thread_rng().choose(&board::Board::SYMBOLS) {
+        Some(s) => s,
+        None => &'X'
+    });
+    println!("Player is {}", player_symbol);
+
     while board.winner().is_none() && !board.is_draw(){
-        if board.next_move() == 'X' {
-            println!("\n{}", board);
+        if board.next_move() == player_symbol {
+            println!("\n\n{}", board);
             let input = prompt(&format!("Player {}, make your move: ", board.next_move()));
 
             let location = input.parse::<i8>().unwrap() - 1;
@@ -55,5 +64,7 @@ fn main() {
         None => String::from("Draw")
     });
     println!("{}", board);
-    println!("{:?}", computer);
+
+    println!("\nThanks for Playing!");
+    //println!("{:?}", computer);
 }

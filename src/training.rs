@@ -58,7 +58,7 @@ pub fn train_sync(n_times: i32) -> [f64; 9] {
     }
 
     let end = time::precise_time_s();
-    println!("Training time (channel): {:.4}s", end - start);
+    println!("Training time (sync): {:.4}s", end - start);
 
     generate_weights(&results)
 }

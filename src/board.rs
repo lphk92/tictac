@@ -1,4 +1,5 @@
 use std::fmt;
+use std::char;
 
 #[derive(Debug)]
 pub struct Board {
@@ -9,14 +10,27 @@ pub struct Board {
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut arr = [' '; 9];
+        for i in 0..self.board.len() {
+            if self.board[i] != ' ' {
+                arr[i] = self.board[i];
+            }
+            else {
+                arr[i] = match char::from_digit((i + 1) as u32, 10) {
+                    Some(c) => c,
+                    None => ' '
+                };
+            }
+        }
+
         write!(f, "\
          {} | {} | {}\n\
         ---------\n\
          {} | {} | {}\n\
         ---------\n\
-         {} | {} | {}", self.board[0], self.board[1], self.board[2],
-                        self.board[3], self.board[4], self.board[5],
-                        self.board[6], self.board[7], self.board[8])
+         {} | {} | {}", arr[0], arr[1], arr[2],
+                        arr[3], arr[4], arr[5],
+                        arr[6], arr[7], arr[8])
     }
 }
 
@@ -41,13 +55,6 @@ impl Board {
             move_count: 0,
         }
     }
-
-    /*
-    pub fn clear(&mut self) {
-        self.board = [' '; 9];
-        self.move_count = 0;
-    }
-    */
 
     pub fn get_board(&self) -> &[char; 9] {
         &self.board

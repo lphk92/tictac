@@ -38,7 +38,7 @@ fn main() {
             println!("\n{}", board);
             let input = prompt(&format!("Player {}, make your move: ", board.next_move()));
 
-            let location = input.parse::<i8>().unwrap();
+            let location = input.parse::<i8>().unwrap() - 1;
             match board.make_move(location as usize) {
                 Ok(i) => i,
                 Err(e) => println!("Player Error: {}", e)

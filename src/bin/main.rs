@@ -25,8 +25,8 @@ fn main() {
     let n_times = 100000;
     println!("Training computer {} times with {} workers.", n_times, n_workers);
 
-    //training::train_sync(n_times);
-    //training::train_channel(n_workers, n_times);
+    training::train_sync(n_times);
+    training::train_channel(n_workers, n_times);
     let weights = training::train_mutex(n_workers, n_times);
 
     print_vec::<f64>(&weights.to_vec());
@@ -49,12 +49,10 @@ fn main() {
 
             let location = match input.parse::<i8>() {
                 Ok(num) => num - 1,
-                Err(e) => -1
-            };
-
-            if location == -1 {
-                println!("Error with input. Try again");
-                continue;
+                Err(e) => {
+                    println!("Error with input '{}': {}.", input, e);
+                    continue;
+                }
             };
 
             match board.make_move(location as usize) {
@@ -75,5 +73,7 @@ fn main() {
     println!("{}", board);
 
     println!("\nThanks for Playing!");
-    //println!("{:?}", computer);
+    if computer.debug {
+        println!("{:?}", computer);
+    }
 }

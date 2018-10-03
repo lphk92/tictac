@@ -1,5 +1,4 @@
 extern crate rand;
-
 use self::rand::Rng;
 
 use board::Board;

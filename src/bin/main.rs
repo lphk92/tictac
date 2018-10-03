@@ -1,29 +1,11 @@
 use std::env;
-use std::io;
-use std::io::Write;
 
 extern crate tictac;
 use tictac::board;
 use tictac::training;
 use tictac::player::AutoPlayer;
+use tictac::utils::{prompt, print_vec};
 
-
-fn prompt(msg: &String) -> String {
-    let mut input = String::new();
-    print!("{}", msg);
-    io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut input).unwrap();
-    String::from(input.trim())
-}
-
-fn print_vec<T: std::fmt::Display>(v: &Vec<T>) {
-    print!("[");
-    for item in v {
-        print!("{}, ", item);
-    }
-    print!("]\n");
-    io::stdout().flush().unwrap();
-}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -48,6 +30,7 @@ fn main() {
 
     let mut board = board::Board::new(String::from("Test Board"));
     let mut computer = AutoPlayer::weighted(weights);
+    computer.debug = true;
 
     // Game loop
     while board.winner().is_none() && !board.is_draw(){

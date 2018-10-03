@@ -21,18 +21,18 @@ impl fmt::Display for Board {
 }
 
 impl Board {
-    const WINNING_MOVES: [(usize, usize, usize); 8] = [
-        (0, 1, 2),
-        (3, 4, 5),
-        (6, 7, 8),
-        (0, 3, 6),
-        (1, 4, 7),
-        (2, 5, 8),
-        (0, 4, 8),
-        (2, 4, 6),
+    pub const WINNING_MOVES: [[usize; 3]; 8] = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
     ];
 
-    const SYMBOLS: [char; 2] = ['X', 'O'];
+    pub const SYMBOLS: [char; 2] = ['X', 'O'];
 
     pub fn new(name: String) -> Board {
         Board {
@@ -48,6 +48,10 @@ impl Board {
         self.move_count = 0;
     }
     */
+
+    pub fn get_board(&self) -> &[char; 9] {
+        &self.board
+    }
 
     pub fn next_move(&self) -> char {
         let idx = self.move_count % 2;
@@ -81,11 +85,11 @@ impl Board {
 
     pub fn winner(&self) -> Option<char> {
         for winning_move in Board::WINNING_MOVES.iter() {
-            let winner = self.board[winning_move.0];
+            let winner = self.board[winning_move[0]];
 
             if winner != ' ' &&
-               winner == self.board[winning_move.1] &&
-               winner == self.board[winning_move.2] {
+               winner == self.board[winning_move[1]] &&
+               winner == self.board[winning_move[2]] {
                 return Some(winner)
             }
         }

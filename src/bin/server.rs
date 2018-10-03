@@ -5,7 +5,6 @@ use std::io::Write;
 use std::net::{TcpListener, TcpStream};
 
 extern crate tictac;
-use tictac::player::AutoPlayer;
 
 fn handle_connection(mut stream: TcpStream) {
     //let mut buffer = [0; 512];
